@@ -1,0 +1,1870 @@
+openapi: 3.0.1
+info:
+  title: Smart+ Link API
+  description: Kabam Robot API provides uniform access to control and monitor Kabam
+    robots. It enables 3rd party applications to interact with Kabam robots.
+  contact:
+    name: Jakub Tomasek
+    email: jakub@kabam.ai
+    url: kabam.ai
+  version: 2.3.2
+servers:
+- url: https://kcrapi-rest-dev.kabam.ai/<device_id>
+paths:
+  /robot/status:
+    get:
+      tags:
+      - Kabam
+      summary: Current robot status
+      description: Retrieves current robot status
+      operationId: get_robot_status
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RobotStatus'
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/config:
+    get:
+      tags:
+      - Kabam
+      summary: Get robot configurations
+      description: Get robot environment variables
+      operationId: get_robot_config
+      responses:
+        "200":
+          description: successful operation
+          content: 
+            application/json:
+              schema:
+                type: object
+                example:
+                  PUBLIC_ENV_VAR_1: "ABC"
+                  PUBLIC_ENV_VAR_2: "XaB123"
+                  PUBLIC_API_KEY: "xyz@123"
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/mapinfo:
+    get:
+      tags:
+      - Kabam
+      summary: Get robot map metadata
+      description: Get robot environment variables
+      operationId: get_robot_mapinfo
+      responses:
+        "200":
+          description: successful operation
+          content: 
+            application/json:
+              schema:
+                type: object
+                example:
+                  map_id: "48868f6d-45f0-4c89-b7cc-c0f84b17b128"
+                  map_label: "kabam_office_partial"
+                  map_filename: "null"
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/trigger/{command}:
+    post:
+      tags:
+      - Kabam
+      summary: Trigger command on a robot subsystem
+      description: "Submits a {command} to a robot, returns immediately. Process should\
+        \ be monitored through status. Can be used for example to `toggle_wheel_brake`,\
+        \ `release_bumper_lockout`, `reboot`, `stop` , `trigger_boom_up`, `trigger_boom_down`,\
+        \ `localize_boom` , `trigger_dock` , `trigger_undock` , `blinker_on` or `blinker_off`."
+      operationId: robot_cmd
+      parameters:
+      - name: command
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - toggle_wheel_brake
+          - release_bumper_lockout
+          - reboot
+          - trigger_dock
+          - trigger_undock
+          - blinker_on
+          - blinker_off
+          - stop
+          - trigger_boom_up
+          - trigger_boom_down
+          - localize_boom
+          - blinker_on
+          - blinker_off
+        example: toggle
+      responses:
+        "200":
+          description: Command was accepted
+        "400":
+          description: Invalid command
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /email/send:
+    post:
+      tags:
+      - Kabam
+      summary: Send an email to someone via sendgrid
+      description: Send an email to someone via sendgrid
+      operationId: send_email
+      requestBody:
+        description: Email Parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/email_send_body'
+      responses:
+        "200":
+          description: Email sent successfully
+          content: {}
+        "400":
+          description: Failed
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/status:
+    get:
+      tags:
+      - Kabam
+      summary: Last mission status update
+      description: Retrieves last mission status update with details
+      operationId: get_mission_status
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionStatus'
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/list:
+    get:
+      tags:
+      - Kabam
+      summary: List missions
+      description: Retrieves list of all available missions to run
+      operationId: get_mission_list
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                properties:
+                  mission_list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        mission_name:
+                          type: string
+                          example: "A17ST220224"
+                        mission_id:
+                          type: string
+                          example: 40dd8fcd-5e6d-4890-b620-88882d9d3977                 
+        "400":
+          description: Error retrieving mission list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/start:
+    post:
+      tags:
+      - Kabam
+      summary: Starts mission
+      description: Triggers mission start
+      operationId: mission_start
+      requestBody:
+        description: Mission parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mission_start_body'
+        required: true
+      responses:
+        "200":
+          description: Command was accepted
+        "400":
+          description: Invalid command
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/trigger/{command}:
+    post:
+      tags:
+      - Kabam
+      summary: "Triggers stop,resume and pause for mission"
+      description: "Submits a {command} to a robot, returns immediately. Process should\
+        \ be monitored through status. Can be used for example to `stop`,`pause` ,`concierge_pause`,\
+        \ and `resume`"
+      operationId: mission_cmd_trigger
+      parameters:
+      - name: command
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          enum:
+          - stop
+          - pause
+          - resume
+          - concierge_pause
+        example: pause
+      responses:
+        "200":
+          description: Command was accepted
+        "400":
+          description: Invalid command
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/schedule:
+    get:
+      tags:
+      - Kabam
+      summary: Retrieves next mission scheduled
+      description: Retrieves next scheduled mission
+      operationId: get_mission_schedule
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KabamTaskSchedule'
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /mission/{mission_id}:
+    get:
+      tags:
+      - Kabam
+      summary: retrieves mission based on mission_id
+      description: This endpoint is used to retrieve mission details based on the
+        mission_id
+      operationId: mission_mission_id_get
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: GoToDoor1
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        "400":
+          description: Error retrieving status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /tts/speak:
+    post:
+      tags:
+      - Kabam
+      summary: Makes the robot robot convert text to speech
+      description: This endpoint is used to make the robot use its text to speech
+        functionality
+      operationId: tts_speak
+      requestBody:
+        description: Body for TTS speak parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tts_speak_body'
+      responses:
+        "200":
+          description: Received command successfully
+          content: {}
+        "400":
+          description: Failed
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /tts/file:
+    post:
+      tags:
+      - Kabam
+      summary: Makes the robot convert file to speech
+      description: This endpoint is used to make the robot use its file to speech
+        functionality
+      operationId: tts_file
+      requestBody:
+        description: Body for TTS file paramters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tts_file_body'
+      responses:
+        "200":
+          description: Received command successfully
+          content: {}
+        "400":
+          description: Failed
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/camera:
+    get:
+      tags:
+      - Kabam
+      summary: Get Image from a specific robot camera
+      description: This endpoint gets an image from a specified robot camera in base64 format.
+      operationId: get_camera
+      parameters:
+        - name: camera_topic
+          in: query
+          required: false
+          description: The camera topic to be chosen for the robot
+          schema:
+            type: string
+            example: /hik_camera_back/camera/image_raw
+      responses:
+        "200":
+          description: Succesfully retrieved image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/robot_camera_body'
+        "400":
+          description: Error
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/pose:
+    get:
+      tags:
+      - Kabam
+      summary: Get robots current position in the map 
+      description: This endpoint is used to get the current position of the robot
+        relative to the fixed frame using tf2
+      operationId: robot_pose_get
+      responses:
+        "200":
+          description: Successfully received position
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/robot_pose_body'
+        "400":
+          description: Failed to retrieve position
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/tf:
+    get:
+      tags:
+      - Kabam
+      summary: Get any TF needed from tf list given child frame and parent frame
+      description: This endpoint is used to get the position of any sensor available through TF
+      operationId: get_tf
+      parameters:
+        - name: child_frame
+          in: query 
+          required: true
+          style: form
+          explode: false
+          schema:
+            type: string
+          example: odom
+        - name: parent_frame
+          in: query 
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: string
+            default: "base_link"
+        - name: output_format
+          in: query 
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: string
+            enum: 
+            - 2D
+            - 3DQUAT
+            - 3DRPY
+            default: 3DQUAT
+      responses:
+        "200":
+          description: Successfully received position
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/robot_pose_body'
+        "400":
+          description: Failed to retrieve position
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/command/go_to:
+    post:
+      tags:
+      - Kabam
+      summary: Sends a goal for the robot to navigate to
+      description: "This endpoint sends a `/move_base_simple/goal` to the robot to move towards. \
+        \ It also monitors the status of the goal and resends if the goal was dropped."
+      operationId: post_navigation_goal
+      requestBody:
+        description: Goal coordinates
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/robot_pose_body'
+      responses:
+        "200":
+          description: Successfully sent goal
+          content: {}
+        "400":
+          description: Failed to send goal
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/navigation_status:
+    get:
+      tags:
+      - Kabam
+      summary: Gets navigation goal completion status
+      description: This endpoint inquires whether or not the robot has completed its recent navigation goal.
+      operationId: get_navigation_completed
+      responses:
+        "200":
+          description: Successfully received completion status
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/robot_navigation_completed_body'
+        "400":
+          description: Failed to inquire completion status
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/command/switch_map:
+    post:
+      tags:
+      - Kabam
+      summary: Switches map of the Robot
+      description: This endpoint triggers a switch map on the robots.
+      operationId: switch_map
+      requestBody:
+        description: Map URL
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/map_body'
+      responses:
+        "200":
+          description: Successfully switched map.
+          content: {}
+        "400":
+          description: Failed to switch map.
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/command/localize:
+    post:
+      tags:
+      - Kabam
+      summary: Localization of Robot
+      description: This endpoint triggers init localization on the robots.
+      operationId: robot_initialize
+      requestBody:
+        description: Initial Point
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/robot_pose_body'
+      responses:
+        "200":
+          description: Successfully initialize robot
+          content: {}
+        "400":
+          description: Failed to initialize robot.
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+  /robot/command/camera_capture:
+    post:
+      tags:
+      - Kabam
+      summary: Capturing image from Robot front camera
+      description: This endpoint triggers camera capture on the robots.
+      operationId: camera_capture
+      requestBody:
+        description: camera capture info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cam_capture_body'
+      responses:
+        "200":
+          description: Successfully trigger camera capture
+          content: {}
+        "400":
+          description: Failed to trigger camera capture.
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.kabam_controller
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          example: "404"
+        msg:
+          type: string
+          example: Failed to ...
+    Mission:
+      type: object
+      properties:
+        mission_name:
+          type: string
+          description: Unique name of the mission
+          example: A17ST220224
+        task_list:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+    Task:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the task
+          example: Navigate to wp0 - generated_map
+        type:
+          type: string
+          description: Type of the task
+          example: MOV2POINT
+        parameter:
+          $ref: '#/components/schemas/TaskParameters'
+    TaskParameters:
+      type: object
+      properties:
+        waypoint:
+          $ref: '#/components/schemas/Waypoint'
+        delay_period:
+          type: number
+          description: Delay period before executing the task
+          example: 0.0
+        camera_topic:
+          type: string
+          description: Topic of the camera feed
+          example: ''
+        announce_string:
+          type: string
+          description: Announcement message to be broadcasted
+          example: ''
+        parameter_list:
+          type: array
+          description: Additional parameters for the task
+          items:
+            type: string
+          example: 
+            - /wifi_survey_mission
+            - --command
+            - start
+    Waypoint:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the waypoint
+          example: wp0
+        id:
+          type: string
+          description: Unique identifier for the waypoint
+          example: 5c378cec-5531-41cf-87b5-9e4b2fb5bcbd
+        frame_id:
+          type: string
+          description: Frame of reference for the waypoint
+          example: /map
+        pose:
+          $ref: '#/components/schemas/Pose'
+    Pose:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/Position'
+        orientation:
+          $ref: '#/components/schemas/Orientation'
+    Position:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-coordinate
+          example: 15.716401325503847
+        y:
+          type: number
+          description: Y-coordinate
+          example: 52.85281746691924
+        z:
+          type: number
+          description: Z-coordinate
+          example: 0.0
+    Orientation:
+      type: object
+      properties:
+        x:
+          type: number
+          description: X-component of the orientation quaternion
+          example: 0.0
+        y:
+          type: number
+          description: Y-component of the orientation quaternion
+          example: 0.0
+        z:
+          type: number
+          description: Z-component of the orientation quaternion
+          example: -0.7770413872719396
+        w:
+          type: number
+          description: W-component of the orientation quaternion
+          example: 0.6294495074797497
+    MissionStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: running
+          enum:
+          - idling
+          - running
+          - paused
+          - completed
+          - cancelled
+          - error
+        error:
+          type: string
+          example: ObstacleTooClose
+          enum:
+          - ""
+          - ObstacleTooClose
+          - EstopPressed
+          - LocalizationLost
+          - GoalNotSafe
+          - Unreachable
+        id:
+          type: string
+          example: InspectWarehouse
+        name:
+          type: string
+          example: InspectWarehouse
+        complete_pct:
+          maximum: 100
+          minimum: 0
+          type: integer
+          example: 20
+        loop_count_req:
+          type: integer
+          example: 2
+        loop_count_done:
+          type: integer
+          example: 1
+      example:
+        loop_count_done: 1
+        id: InspectWarehouse
+        name: InspectWarehouse
+        error: ObstacleTooClose
+        loop_count_req: 2
+        status: running
+        complete_pct: 20
+    RobotStatus:
+      type: object
+      properties:
+        system_health:
+          type: string
+          description: Overall robot system status
+          enum:
+          - ok
+          - warn
+          - error
+          - intervention
+          - unknown
+        system_health_desc:
+          type: string
+          description: Human-readable detailed description of system status
+          example: ""
+        battery:
+          $ref: '#/components/schemas/RobotStatus_battery'
+        safety:
+          $ref: '#/components/schemas/RobotStatus_safety'
+        door_lock:
+          type: object
+          additionalProperties:
+            type: boolean
+          example:
+            door1: true
+            door2: false
+            door3: true
+        sensorHealth:
+          $ref: '#/components/schemas/RobotStatus_sensors'
+        navigation:
+          $ref: '#/components/schemas/RobotStatus_navigation'
+        mission:
+          $ref: '#/components/schemas/MissionStatus'
+        cleaning:
+          $ref: '#/components/schemas/RobotStatus_cleaning'
+        other:
+          type: object
+          properties:
+            boom_status:
+              type: string
+              example: "STATIONARY_UP"
+          example:
+              boom_status: "STATIONARY_UP"
+      example:
+        cleaning:
+          cleaning_on: true
+          cleaning_mode: MutePushDust
+          dustbag_level: true
+          maintanance_msg: Dustbag is full
+        navigation:
+          localization: true
+          map_name: plq
+          autonomous: true
+          speed: 0.5
+          mileage: 100
+          lift:
+            lift_attendant_state: IDLE
+            current_floor: L1
+            lift_task_prog: 100
+            lift_task_success: true
+            lift_task_completed: false
+        mission:
+          loop_count_done: 1
+          id: InspectWarehouse
+          error: ObstacleTooClose
+          loop_count_req: 2
+          status: running
+          complete_pct: 20
+        sensors:
+          cameras:
+            overhang: ok
+            rear: warn
+            top: error
+          odom:
+            wheel: ok
+            imu: ok
+          lidars:
+            top: ok
+          ultrasonic:
+            "0": ok
+            "1": warn
+            "2": error
+            "3": ok
+            "4": ok
+        system_status: ok
+        safety:
+          estop: ok
+          bumper_lockout: ok
+        system_status_desc: ""
+        door_lock:
+          door1: true
+          door2: false
+          door3: true
+        battery:
+          current: 1.815
+          level: 45
+          charging: false
+          temperature: 35.1
+          health: ok
+          voltage: 21.815   
+        other:
+          boom_status: "STATIONARY_UP"
+    Schedule:
+      type: object
+      properties:
+        mission_id:
+          type: string
+          example: GoToWarehouse
+        timestamp:
+          type: string
+          format: date-time
+    MapListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MapListItem"
+        errorCode:
+          type: string
+          example: ""
+        msg:
+          type: string
+          example: Failed to poll Gaussian API.
+        successed:
+          type: boolean
+    MapListItem:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          example: "2016-08-11 04:13:38"
+        dataFileName:
+          type: string
+          example: 40dd8fcd-5e6d-4890-b620-88882d9d3977.data
+        id:
+          type: integer
+          example: 0
+        mapInfo:
+          $ref: "#/components/schemas/inline_response_200_3_mapInfo"
+        name:
+          type: string
+          example: demo
+        obstacleFileName:
+          type: string
+          example: ""
+        pgmFileName:
+          type: string
+          example: 6a3e7cae-c4a8-4583-9a5d-08682344647a.pgm
+        pngFileName:
+          type: string
+          example: 228b335f-8c1a-4f05-a292-160f942cbe00.png
+        yamlFileName:
+          type: string
+          example: 4108be8c-4004-4ad6-a9c5-599b4a3d49df.yaml
+    LaserPhitResponse:
+      type: object
+      properties:
+        header:
+          $ref: "#/components/schemas/inline_response_200_4_header"
+        mapInfo:
+          $ref: "#/components/schemas/inline_response_200_3_mapInfo"
+        gridPhits:
+          type: array
+          items:
+            type: object
+            properties:
+              x:
+                type: number
+                description: X-coordinate of the rasterized laser position
+                example: 111
+              y:
+                type: number
+                description: Y-coordinate of the rasterized laser position
+                example: 111
+        worldPhits:
+          type: array
+          items:
+            type: object
+            properties:
+              x:
+                type: number
+                description: X-coordinate of the laser position in the world
+                example: -0.00000000000180135178
+              y:
+                type: number
+                description: Y-coordinate of the laser position in the world
+                example: 0.00000002584042026
+              z:
+                type: number
+                description: Z-coordinate of the laser position in the world
+                example: 0
+    inline_response_200_1:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/inline_response_200_1_data'
+        errorCode:
+          type: string
+          example: ""
+        msg:
+          type: string
+          example: successed
+        successed:
+          type: boolean
+      example:
+        msg: successed
+        data:
+          emergencyStop: true
+          charge: true
+          chargerVoltage: 0.021
+          batteryVoltage: 21.815
+          chargerCurrent: 0.604688
+          statusUpdatedAt: 1515896014
+          indexUpdatedAt: 1515901694
+          emergency: true
+          battery: 45.435484
+          totalMileage: 0
+          speed: 0
+          uptime: 5709
+          charger: 0
+          playPathSpeedLevel: 2
+          chargerStatus: true
+          navigationSpeedLevel: 1
+          mileage: mileage
+        successed: true
+        errorCode: ""
+    inline_response_200_4:
+      type: object
+      properties:
+        header:
+          $ref: '#/components/schemas/inline_response_200_4_header'
+        angle_min:
+          type: number
+          example: -2.3
+        angle_max:
+          type: number
+          example: 2.3
+        angle_increment:
+          type: number
+          example: 0.005
+        range_min:
+          type: number
+          example: 0.05
+        range_max:
+          type: number
+          example: 10
+        ranges:
+          type: array
+          items:
+            type: number
+            example: 4.94
+        intensities:
+          type: array
+          items:
+            type: number
+            example: 0
+      example:
+        angle_max: 2.3
+        ranges:
+        - 4.94
+        - 4.94
+        angle_increment: 0.005
+        range_min: 0.05
+        header:
+          stamp: 14321212
+          frame_id: base_laser
+        range_max: 10
+        intensities:
+        - 0
+        - 0
+        angle_min: -2.3
+    inline_response_200_5:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/inline_response_200_5_data'
+        errorCode:
+          type: string
+        msg:
+          type: string
+          example: successed
+        successed:
+          type: boolean
+      example:
+        msg: successed
+        data:
+        - createdAt: "{}"
+          gridX: 458
+          gridY: 238
+          name: demo_position
+          worldPose:
+            orientation:
+              w: 0.9991511204590953
+              x: 0
+              "y": 0
+              z: -0.041195126961019124
+            position:
+              x: -1.873163616425341
+              "y": -12.877138903739242
+              z: 0
+          angle: -4.7219500215147585
+          mapId: 0
+          id: 0
+          mapName: demo
+          type: 0
+        - createdAt: "{}"
+          gridX: 458
+          gridY: 238
+          name: demo_position
+          worldPose:
+            orientation:
+              w: 0.9991511204590953
+              x: 0
+              "y": 0
+              z: -0.041195126961019124
+            position:
+              x: -1.873163616425341
+              "y": -12.877138903739242
+              z: 0
+          angle: -4.7219500215147585
+          mapId: 0
+          id: 0
+          mapName: demo
+          type: 0
+        successed: true
+        errorCode: errorCode
+    RobotStatus_battery:
+      type: object
+      properties:
+        health:
+          type: string
+          example: ok
+          enum:
+          - ok
+          - warn
+          - error
+        charging:
+          type: boolean
+          example: false
+        level:
+          maximum: 100
+          minimum: 0
+          type: integer
+          description: "[%]"
+          example: 45
+        voltage:
+          minimum: 0
+          type: number
+          description: "[V]"
+          example: 21.815
+        current:
+          type: number
+          description: "[A]"
+          example: 1.815
+        temperature:
+          type: number
+          description: "[Â°C]"
+          example: 35.1
+      example:
+        current: 1.815
+        level: 45
+        charging: false
+        temperature: 35.1
+        health: ok
+        voltage: 21.815
+    RobotStatus_safety:
+      type: object
+      properties:
+        estop:
+          type: string
+          description: error  when emergency stop is engaged
+          example: error
+        bumper_lockout:
+          type: string
+          description: error when active
+          example: error
+      example:
+        estop: error
+        bumper_lockout: error
+    RobotStatus_sensors:
+      type: object
+      properties:
+        odometry:
+          type: string
+        imu:
+          type: string
+        rsLidar:
+          type: string
+        bottomLidar:
+          type: string
+        lidarFrontLeftNegObs:
+          type: string
+        lidarRearLeftNegObs:
+          type: string
+        lidarFrontRightNegObs:
+          type: string
+        lidarRearRightNegObs:
+          type: string
+        ultrasonic0:
+          type: string
+        ultrasonic1:
+          type: string
+        ultrasonic2:
+          type: string
+        ultrasonic3:
+          type: string
+        ultrasonic4:
+          type: string
+        ultrasonic5:
+          type: string
+        ultrasonic6:
+          type: string
+        ultrasonic7:
+          type: string
+        ultrasonic8:
+          type: string
+        ultrasonic9:
+          type: string
+        ultrasonic10:
+          type: string
+        ultrasonic11:
+          type: string
+    RobotStatus_navigation:
+      type: object
+      properties:
+        moving_status:
+          type: string
+          description: Moving status of the robot
+          example: Idle
+        mileage:
+          type: number
+          description: Distance traveled in meters
+          example: 100
+        map_name:
+          type: string
+          example: plq
+        map_id:
+          type: string
+          example: plq
+        map_hash:
+          type: string
+          example: fB5D4QfH9x0Z9Lf36jvN2g7aAdEr9PTsZV4lwEOUoHM=
+        odom_vel_x:
+          type: number
+          description: "Current linear speed in [m/s]"
+          example: 0.5
+        odom_vel_yaw:
+          type: number
+          description: "Current angular velocity in [rad/s]"
+          example: 0.132
+        localization:
+          type: boolean
+          description: True when localized
+          example: true
+        localization_quality:
+          type: number
+          description: quality in percent [0, 100], higher the better
+          example: true
+        autonomous:
+          type: boolean
+          description: Is robot in autonomous(true) or manual(false) mode
+          example: true
+        lift:
+          $ref: '#/components/schemas/RobotStatus_lift'
+      example:
+        localization: true
+        localization_quality: 85
+        map_name: plq
+        map_id: 45df454f-df65fd-fdfd54f-fdfdf
+        map_hash: fB5D4QfH9x0Z9Lf36jvN2g7aAdEr9PTsZV4lwEOUoHM=
+        autonomous: true
+        odom_vel_x: 0.5
+        odom_vel_yaw: 0.132
+        mileage: 100
+    RobotStatus_cleaning:
+      type: object
+      properties:
+        cleaning_on:
+          type: boolean
+          description: True when cleaning function is on
+          example: true
+        cleaning_mode:
+          type: string
+          example: CarpetCleaning
+        dustbag_full:
+          type: boolean
+          description: True when dustbag is full
+          example: false
+        maintanance_msg:
+          type: string
+          example: Dustbag is full
+      example:
+        cleaning_on: true
+        cleaning_mode: MutePushDust
+        dustbag_level: true
+        maintanance_msg: Dustbag is full
+    RobotStatus_lift:
+      type: object
+      properties:
+        lift_attendant_state:
+          type: string
+          description: State of lift attendant
+          example: IDLE
+        current_floor:
+          type: string
+          description: Current floor the robot is at
+          example: L1
+        lift_task_prog:
+          type: number
+          description: Progress of the lift request in percentage
+          example: 100
+        lift_task_success: 
+          type: boolean
+          description: If the task has succeeded or not
+          example: false
+        lift_task_completed:
+          type: boolean
+          description: If the task has completed or not (Failed task are still marked as completed)
+          example: true
+      example:
+        lift_attendant_state: IDLE
+        current_floor: L1
+        lift_task_prog: 100
+        lift_task_success: false
+        lift_task_completed: true
+    inline_response_200_1_data:
+      type: object
+      properties:
+        battery:
+          type: number
+          example: 45.435484
+        batteryVoltage:
+          type: number
+          example: 21.815
+        charge:
+          type: boolean
+        charger:
+          type: integer
+          format: int32
+          example: 0
+        chargerCurrent:
+          type: number
+          example: 0.604688
+        chargerStatus:
+          type: boolean
+        chargerVoltage:
+          type: number
+          example: 0.021
+        emergency:
+          type: boolean
+        emergencyStop:
+          type: boolean
+        indexUpdatedAt:
+          type: integer
+          format: int32
+          example: 1515901694
+        mileage:
+          type: string
+          format: nullable
+        navigationSpeedLevel:
+          type: integer
+          format: int32
+          example: 1
+        playPathSpeedLevel:
+          type: integer
+          format: int32
+          example: 2
+        speed:
+          type: integer
+          format: int32
+          example: 0
+        statusUpdatedAt:
+          type: integer
+          format: int32
+          example: 1515896014
+        totalMileage:
+          type: integer
+          format: int32
+          example: 0
+        uptime:
+          type: integer
+          format: int32
+          example: 5709
+      example:
+        emergencyStop: true
+        charge: true
+        chargerVoltage: 0.021
+        batteryVoltage: 21.815
+        chargerCurrent: 0.604688
+        statusUpdatedAt: 1515896014
+        indexUpdatedAt: 1515901694
+        emergency: true
+        battery: 45.435484
+        totalMileage: 0
+        speed: 0
+        uptime: 5709
+        charger: 0
+        playPathSpeedLevel: 2
+        chargerStatus: true
+        navigationSpeedLevel: 1
+        mileage: mileage
+    inline_response_200_2_data_task_status_map_mapInfo:
+      type: object
+      properties:
+        gridHeight:
+          type: integer
+          format: int32
+          example: 608
+        gridWidth:
+          type: integer
+          format: int32
+          example: 736
+        originX:
+          type: number
+          example: -11.200000000000001
+        originY:
+          type: number
+          example: -17.6
+        resolution:
+          type: number
+          example: 0.05000000074505806
+      example:
+        gridHeight: 608
+        originX: -11.200000000000001
+        originY: -17.6
+        gridWidth: 736
+        resolution: 0.05000000074505806
+    inline_response_200_2_data_task_status_map:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          example: "{}"
+        dataFileName:
+          type: string
+          example: 8756bd69-11ce-4ce3-afe5-6707676ea5f6.data
+        id:
+          type: string
+          example: 2af2b255-c9f7-4994-a00d-1428c40836af
+        mapInfo:
+          $ref: '#/components/schemas/inline_response_200_2_data_task_status_map_mapInfo'
+        name:
+          type: string
+          example: demo2
+        obstacleFileName:
+          type: string
+          example: 6e501b2f-c763-49dd-8048-c333cd712b94.json
+        pgmFileName:
+          type: string
+          example: 3282957a-eb3b-4496-a846-5103fbc6fa05.pgm
+        pngFileName:
+          type: string
+          example: b5433412-dce2-4e97-8c4d-a02aabc341ad.png
+        yamlFileName:
+          type: string
+          example: f76229de-9944-46be-a37c-f6cadd6ff34d.yaml
+      example:
+        dataFileName: 8756bd69-11ce-4ce3-afe5-6707676ea5f6.data
+        mapInfo:
+          gridHeight: 608
+          originX: -11.200000000000001
+          originY: -17.6
+          gridWidth: 736
+          resolution: 0.05000000074505806
+        createdAt: "{}"
+        pgmFileName: 3282957a-eb3b-4496-a846-5103fbc6fa05.pgm
+        pngFileName: b5433412-dce2-4e97-8c4d-a02aabc341ad.png
+        name: demo2
+        id: 2af2b255-c9f7-4994-a00d-1428c40836af
+        obstacleFileName: 6e501b2f-c763-49dd-8048-c333cd712b94.json
+        yamlFileName: f76229de-9944-46be-a37c-f6cadd6ff34d.yaml
+    inline_response_200_2_data_task_status_task_queue_start_param:
+      type: object
+      properties:
+        graph_name:
+          type: string
+          example: grap
+        graph_path_name:
+          type: string
+          example: path
+        map_name:
+          type: string
+          example: demo2
+      example:
+        graph_name: grap
+        map_name: demo2
+        graph_path_name: path
+    inline_response_200_2_data_task_status_task_queue_tasks:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 66bddeb3-5697-4e1e-9566-4a92677b4425
+        name:
+          type: string
+          example: PlayGraphPathTask
+        start_param:
+          $ref: '#/components/schemas/inline_response_200_2_data_task_status_task_queue_start_param'
+      example:
+        name: PlayGraphPathTask
+        id: 66bddeb3-5697-4e1e-9566-4a92677b4425
+        start_param:
+          graph_name: grap
+          map_name: demo2
+          graph_path_name: path
+    inline_response_200_2_data_task_status_task_queue:
+      type: object
+      properties:
+        loop:
+          type: boolean
+        map_id:
+          type: string
+        map_name:
+          type: string
+          example: demo2
+        name:
+          type: string
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/inline_response_200_2_data_task_status_task_queue_tasks'
+      example:
+        map_id: map_id
+        loop: true
+        map_name: demo2
+        name: name
+        tasks:
+        - name: PlayGraphPathTask
+          id: 66bddeb3-5697-4e1e-9566-4a92677b4425
+          start_param:
+            graph_name: grap
+            map_name: demo2
+            graph_path_name: path
+        - name: PlayGraphPathTask
+          id: 66bddeb3-5697-4e1e-9566-4a92677b4425
+          start_param:
+            graph_name: grap
+            map_name: demo2
+            graph_path_name: path
+    inline_response_200_3_mapInfo:
+      type: object
+      properties:
+        gridHeight:
+          type: number
+          example: 992
+        gridWidth:
+          type: number
+          example: 992
+        originX:
+          type: number
+          example: -24.8
+        originY:
+          type: number
+          example: -24.8
+        resolution:
+          type: number
+          example: 0.05000000074505806
+      example:
+        gridHeight: 992
+        originX: -24.8
+        originY: -24.8
+        gridWidth: 992
+        resolution: 0.05000000074505806
+    inline_response_200_3_worldPosition_orientation:
+      type: object
+      properties:
+        w:
+          type: number
+          example: -0.05743089347363588
+        x:
+          type: number
+          example: 0
+        "y":
+          type: number
+          example: 0
+        z:
+          type: number
+          example: 0.9983494841361015
+      example:
+        w: -0.05743089347363588
+        x: 0
+        "y": 0
+        z: 0.9983494841361015
+    inline_response_200_3_worldPosition_position:
+      type: object
+      properties:
+        x:
+          type: number
+          example: -6.189813393986145
+        "y":
+          type: number
+          example: 0.3017086724551712
+        z:
+          type: number
+          example: 0
+      example:
+        x: -6.189813393986145
+        "y": 0.3017086724551712
+        z: 0
+    inline_response_200_3_worldPosition:
+      type: object
+      properties:
+        orientation:
+          $ref: '#/components/schemas/inline_response_200_3_worldPosition_orientation'
+        position:
+          $ref: '#/components/schemas/inline_response_200_3_worldPosition_position'
+      example:
+        orientation:
+          w: -0.05743089347363588
+          x: 0
+          "y": 0
+          z: 0.9983494841361015
+        position:
+          x: -6.189813393986145
+          "y": 0.3017086724551712
+          z: 0
+    inline_response_200_4_header:
+      type: object
+      properties:
+        stamp:
+          type: number
+          example: 14321212
+        frame_id:
+          type: string
+          example: base_laser
+      example:
+        stamp: 14321212
+        frame_id: base_laser
+    inline_response_200_5_worldPose_orientation:
+      type: object
+      properties:
+        w:
+          type: number
+          example: 0.9991511204590953
+        x:
+          type: integer
+          format: int32
+          example: 0
+        "y":
+          type: integer
+          format: int32
+          example: 0
+        z:
+          type: number
+          example: -0.041195126961019124
+      example:
+        w: 0.9991511204590953
+        x: 0
+        "y": 0
+        z: -0.041195126961019124
+    inline_response_200_5_worldPose_position:
+      type: object
+      properties:
+        x:
+          type: number
+          example: -1.873163616425341
+        "y":
+          type: number
+          example: -12.877138903739242
+        z:
+          type: integer
+          format: int32
+          example: 0
+      example:
+        x: -1.873163616425341
+        "y": -12.877138903739242
+        z: 0
+    inline_response_200_5_worldPose:
+      type: object
+      properties:
+        orientation:
+          $ref: '#/components/schemas/inline_response_200_5_worldPose_orientation'
+        position:
+          $ref: '#/components/schemas/inline_response_200_5_worldPose_position'
+      example:
+        orientation:
+          w: 0.9991511204590953
+          x: 0
+          "y": 0
+          z: -0.041195126961019124
+        position:
+          x: -1.873163616425341
+          "y": -12.877138903739242
+          z: 0
+    inline_response_200_5_data:
+      type: object
+      properties:
+        angle:
+          type: number
+          example: -4.7219500215147585
+        createdAt:
+          type: string
+          example: "{}"
+        gridX:
+          type: integer
+          format: int32
+          example: 458
+        gridY:
+          type: integer
+          format: int32
+          example: 238
+        id:
+          type: integer
+          format: int32
+          example: 0
+        mapId:
+          type: integer
+          format: int32
+          example: 0
+        mapName:
+          type: string
+          example: demo
+        name:
+          type: string
+          example: demo_position
+        type:
+          type: integer
+          format: int32
+          example: 0
+        worldPose:
+          $ref: '#/components/schemas/inline_response_200_5_worldPose'
+      example:
+        createdAt: "{}"
+        gridX: 458
+        gridY: 238
+        name: demo_position
+        worldPose:
+          orientation:
+            w: 0.9991511204590953
+            x: 0
+            "y": 0
+            z: -0.041195126961019124
+          position:
+            x: -1.873163616425341
+            "y": -12.877138903739242
+            z: 0
+        angle: -4.7219500215147585
+        mapId: 0
+        id: 0
+        mapName: demo
+        type: 0
+    cmd_rotate_body:
+      type: object
+      properties:
+        rotateAngle:
+          type: number
+          description: "Angle in degrees in range (-360,360)"
+          example: 100
+        rotateSpeed:
+          type: number
+          description: "Speed in [rad/s] (0.1, 0.6) rad/s"
+          example: 0.1
+    cmd_initialize_custom:
+      type: object
+      properties:
+        angle:
+          type: number
+          description: Angle of the position
+          example: 100
+        gridPosition:
+          type: object
+          properties:
+            x:
+              type: number
+              description: X-coordinate in the grid
+              example: 100
+            y:
+              type: number
+              description: Y-coordinate in the grid
+              example: 100
+    cmd_navigate_body:
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/cmd_initialize_custom'
+    KabamTaskSchedule:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the operation was successful
+        message:
+          type: string
+          description: Provides details about the scheduled mission, including its ID and timestamp
+    mission_start_body:
+      type: object
+      properties:
+        mission_id:
+          type: string
+          example: aa898394-434hjk34-433kjdnf
+        loop_count:
+          type: integer
+          example: 1
+    tts_speak_body:
+      type: object
+      properties:
+        text:
+          type: string
+          example: welcome to kabam
+        text_type:
+          type: string
+          example: text
+        voice_id:
+          type: string
+          example: Joanna
+        volume:
+          type: string
+          example: '1.0'
+        command:
+          type: string
+          example: '1'
+        wait_time:
+          type: string
+          example: '0'
+      required:
+        - text
+    tts_file_body:
+      type: object
+      properties:
+        file:
+          type: string
+          example: inaudible.mp3
+        wait_time:
+          type: string
+          example: '0'
+        volume:
+          type: string
+          example: '0.3'
+        command:
+          type: string
+          example: '1'
+      required:
+        - file
+    email_send_body:
+      type: object
+      properties:
+        to:
+          type: string
+          example: "example@google.com"
+        subject:
+          type: string
+          example: "Test email"
+        body:
+          type: string
+          example: "Greetings from Kabam Robotics"
+        attach_camera_image:
+          type: boolean
+          example: true
+        camera_topic:
+          type: string
+          example: "/hik_camera_front/camera/image_raw"
+          description: Optional parameter to specify which camera topic to use. Defaults to the robot's default camera if not specified. The camera topic is expected to be of type sensor_msgs/Image or sensor_msgs/CompressedImage.
+    robot_camera_body:
+      type: object
+      properties:
+        image:
+          type: string
+          description: Base64 encoded image from the specified camera.
+          example: "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhki..."
+    map_body:
+      type: object
+      properties:
+        map_name:
+          type: string
+          example: L2
+    cam_capture_body:
+      type: object
+      properties:
+        categories_list:
+          type: string
+          enum:
+          - Image Capture
+          - Faulty Bulb
+          - Full Trashcan
+          - Faulty Escalator
+          - Illegal Parking 
+          - People Smoking 
+          - Fire
+          - Loitering Person
+          - Open Door
+          - People
+          - Blackout Detection
+          - Unattended Object
+          - Abandoned Luggage
+          - Unauthorized Pallet
+          - bulb_faulty
+          - trashcan_full
+          - escalator_not_working
+          - faulty_escalator
+          - illegal_parking
+          - people_smoking
+          - loitering_person,
+          - abandoned_luggage
+          - fire
+          - open_door
+          - close_door
+          - people
+          - blackout_detection
+          - unattended_object
+          - unauthorized_pallet
+        capture_duration:
+          type: integer
+          description: capture duration in seconds
+          example: 1
+        interval:
+          type: integer
+          description: interval to capture image
+          example: 1
+    robot_pose_body:
+      type: object
+      properties:
+        x:
+          type: number
+          description: "x coordinate in m"
+          example: 1
+        y:
+          type: number
+          description: "y coordinate in m"
+          example: 1
+        theta:
+          type: number
+          description: "yaw of robot in radians(rad)"
+          example: 0.2
+    robot_navigation_completed_body:
+      type: object
+      properties:
+        completed:
+          type: boolean
+          description: "Goal completed or not"
+    KabamTaskSchedule_inner:
+      type: object
+      properties:
+        mission_id:
+          type: string
+          example: GoToWarehouse
+        task_name:
+          type: string
+          example: Test1
+        map_name:
+          type: string
+          example: Workshop
+        timestamp:
+          type: string
+          format: date-time
+      example:
+        task_name: Test1
+        map_name: Workshop
+        mission_id: GoToWarehouse
+        timestamp: 2000-01-23T04:56:07.000+00:00
