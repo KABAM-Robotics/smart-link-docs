@@ -1,7 +1,9 @@
 # Smart+ Link API Documentation
 ## Overview
 
-Smart+ Link is a cloud API gateway providing unified access to control robots and retrieve telemetry and sensor data (e.g. video, audio, lidar). The service offers a unified interface for interacting with Smart+ enabled robots, simplifying integration across multiple platforms.
+Smart+ Link is a cloud API gateway providing unified, robot-agnostic access to control and retrieve telemetry and sensors data (e.g. video, audio, lidar) from diverse robot platforms. Supporting various robot types and manufacturers through a standardized interface, it abstracts hardware differences to simplify development across heterogeneous robot fleets.
+
+Third-party developers can leverage Smart+ Link to build cloud or on-premises applications including AI agents, custom user interfaces and dashboard, data analytics platforms, and industry-specific solutions. Whether integrating with existing systems like ERP and warehouse management software or creating specialized tools for manufacturing, healthcare, or retail, Smart+ Link provides the connectivity and data access needed to extend robot capabilities through a single, consistent API.
 
 ## Interface Types
 
