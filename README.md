@@ -12,7 +12,7 @@ Smart+ Link includes two types of interfaces:
 
 ## Key Details
 
-* **Base URL**: https://<deploy-server-domain>/<device_id>
+* **Base URL**: https://\<deploy-server-domain>/<device_id>
 * **Authentication**: Bearer Token in the Authorization header
 * **Content-Type**: JSON
 * **Response Format**: JSON
